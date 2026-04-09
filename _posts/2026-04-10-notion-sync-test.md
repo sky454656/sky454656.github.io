@@ -8,3 +8,5 @@ description: "notion에서 작성한 테스트 글"
 notion Sync Test
 
 노션에서 작성한 테스트 글
+
+![Notion Sync Test](/assets/img/posts/notion-sync-test/2026-04-10-notion-sync-test-1.png)
