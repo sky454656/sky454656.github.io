@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "sync:notion": "node scripts/sync-notion-posts.js",
+    "sync:push": "bash tools/sync-and-push.sh"
+  },
+  "dependencies": {
+    "@notionhq/client": "^5.17.0"
+  }
+}

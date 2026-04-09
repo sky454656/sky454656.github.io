@@ -25,6 +25,34 @@ This starter bundles those files from the latest **Chirpy** release along with a
 
 Check out the [theme's docs](https://github.com/cotes2020/jekyll-theme-chirpy/wiki).
 
+## Notion Sync Automation
+
+Use `.env.example` as a template and create a local `.env` file with:
+
+```shell
+NOTION_TOKEN=...
+NOTION_DATABASE_ID=...
+```
+
+Run the full sync and push job manually with:
+
+```shell
+npm run sync:push
+```
+
+The script at `tools/sync-and-push.sh` will:
+
+- load `.env`
+- sync posts from Notion
+- commit only when files changed
+- push the current branch to `origin`
+
+Example `crontab` entry for every hour at minute 5:
+
+```cron
+5 * * * * cd /home/ubuntu/blog/sky454656.github.io && /usr/bin/env bash tools/sync-and-push.sh >> /tmp/notion-sync.log 2>&1
+```
+
 ## Contributing
 
 This repository is automatically updated with new releases from the theme repository. If you encounter any issues or want to contribute to its improvement, please visit the [theme repository][chirpy] to provide feedback.
