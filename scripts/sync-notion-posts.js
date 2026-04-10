@@ -47,10 +47,45 @@ function formatDateOnly(value) {
   return String(value || "").slice(0, 10);
 }
 
-function getTodayDate() {
-  return new Intl.DateTimeFormat("en-CA", {
+function getSeoulDateParts(value) {
+  const date = value ? new Date(value) : new Date();
+
+  const formatter = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Seoul",
-  }).format(new Date());
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+
+  const parts = Object.fromEntries(
+    formatter
+      .formatToParts(date)
+      .filter((part) => part.type !== "literal")
+      .map((part) => [part.type, part.value])
+  );
+
+  return {
+    year: parts.year,
+    month: parts.month,
+    day: parts.day,
+    hour: parts.hour,
+    minute: parts.minute,
+    second: parts.second,
+  };
+}
+
+function formatSeoulDateTime(value) {
+  const parts = getSeoulDateParts(value);
+  return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}:${parts.second} +0900`;
+}
+
+function getTodayDate() {
+  const parts = getSeoulDateParts();
+  return `${parts.year}-${parts.month}-${parts.day}`;
 }
 
 function sanitizeFileName(value) {
@@ -300,14 +335,20 @@ function extractPageMeta(page) {
   const slugRaw = slugProp?.rich_text ? richTextToPlain(slugProp.rich_text) : "";
   const slug = slugify(slugRaw || title);
 
-  const date = formatDateOnly(dateProp?.date?.start) || getTodayDate();
+  const rawDateStart = dateProp?.date?.start || "";
+  const createdTime = page.created_time || new Date().toISOString();
+  const dateOnly = formatDateOnly(rawDateStart) || getTodayDate();
+  const hasExplicitTime = rawDateStart.includes("T");
+  const dateTime = hasExplicitTime
+    ? formatSeoulDateTime(rawDateStart)
+    : `${dateOnly} ${formatSeoulDateTime(createdTime).slice(11)}`;
   const tags = Array.isArray(tagsProp?.multi_select)
     ? tagsProp.multi_select.map((t) => t.name)
     : [];
   const category = categoryProp?.select?.name || "";
   const summary = summaryProp?.rich_text ? richTextToPlain(summaryProp.rich_text) : "";
 
-  return { title, slug, date, tags, category, summary };
+  return { title, slug, date: dateOnly, dateTime, tags, category, summary };
 }
 
 async function main() {
@@ -337,7 +378,7 @@ async function main() {
     const frontMatterLines = [
       "---",
       `title: "${escapeYaml(meta.title)}"`,
-      `date: ${meta.date}`,
+      `date: ${meta.dateTime}`,
     ];
 
     if (meta.category) {

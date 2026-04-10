@@ -1,6 +1,6 @@
 ---
 title: "Notion-git 자동화 테스트"
-date: 2026-04-10
+date: 2026-04-10 00:11:00 +0900
 categories: [test]
 tags: [test, notion]
 description: "notion 자동화 테스트 글"

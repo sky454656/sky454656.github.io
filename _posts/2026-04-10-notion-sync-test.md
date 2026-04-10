@@ -1,6 +1,6 @@
 ---
 title: "Notion Sync Test"
-date: 2026-04-10
+date: 2026-04-10 00:02:00 +0900
 categories: [test]
 tags: [test, notion]
 description: "notion에서 작성한 테스트 글"

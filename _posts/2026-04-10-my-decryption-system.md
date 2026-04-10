@@ -1,6 +1,6 @@
 ---
 title: "[Dreamhack] My Decryption System"
-date: 2026-04-10
+date: 2026-04-10 11:15:00 +0900
 categories: [CTF/Wargame]
 tags: [Wargame]
 description: "lv6-My_Decryption_System"
