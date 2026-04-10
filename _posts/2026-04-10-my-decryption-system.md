@@ -3,7 +3,7 @@ title: "[Dreamhack] My Decryption System"
 date: 2026-04-10
 categories: [CTF/Wargame]
 tags: [Wargame]
-description: "lv6-My-Decryption-System"
+description: "lv6-My_Decryption_System"
 ---
 ![[Dreamhack] My Decryption System](/assets/img/posts/my-decryption-system/2026-04-10-my-decryption-system-1.png)
 
