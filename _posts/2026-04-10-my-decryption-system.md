@@ -1,6 +1,7 @@
 ---
 title: "[Dreamhack] My Decryption System"
 date: 2026-04-10 11:15:00 +0900
+notion_page_id: "2f0d0542-16a9-8087-92b0-c02e2ccc9e2d"
 categories: [CTF/Wargame]
 tags: [Wargame]
 description: "lv6-My_Decryption_System"

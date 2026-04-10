@@ -96,6 +96,21 @@ function sanitizeFileName(value) {
     .replace(/^-|-$/g, "");
 }
 
+function parseFrontMatter(content) {
+  const match = String(content || "").match(/^---\n([\s\S]*?)\n---/);
+  if (!match) return {};
+
+  const result = {};
+  for (const line of match[1].split("\n")) {
+    const separatorIndex = line.indexOf(":");
+    if (separatorIndex === -1) continue;
+    const key = line.slice(0, separatorIndex).trim();
+    const value = line.slice(separatorIndex + 1).trim().replace(/^"|"$/g, "");
+    result[key] = value;
+  }
+  return result;
+}
+
 function getFileExtension(url, contentType) {
   const pathname = (() => {
     try {
@@ -353,6 +368,8 @@ function extractPageMeta(page) {
 
 async function main() {
   const pages = await getAllPages();
+  const activeNotionPageIds = new Set();
+  const activeSlugs = new Set();
 
   for (const page of pages) {
     const meta = extractPageMeta(page);
@@ -363,6 +380,8 @@ async function main() {
       imageIndex: 0,
       meta,
     };
+    activeNotionPageIds.add(page.id);
+    activeSlugs.add(meta.slug);
 
     fs.rmSync(postImageDir, { recursive: true, force: true });
 
@@ -379,6 +398,7 @@ async function main() {
       "---",
       `title: "${escapeYaml(meta.title)}"`,
       `date: ${meta.dateTime}`,
+      `notion_page_id: "${page.id}"`,
     ];
 
     if (meta.category) {
@@ -402,6 +422,27 @@ async function main() {
     fs.writeFileSync(filePath, `${frontMatter}${markdownBody}\n`, "utf8");
 
     console.log(`생성 완료: ${fileName}`);
+  }
+
+  const postFiles = fs.readdirSync(POSTS_DIR).filter((fileName) => fileName.endsWith(".md"));
+
+  for (const fileName of postFiles) {
+    const filePath = path.join(POSTS_DIR, fileName);
+    const content = fs.readFileSync(filePath, "utf8");
+    const frontMatter = parseFrontMatter(content);
+    const notionPageId = frontMatter.notion_page_id;
+
+    if (!notionPageId) continue;
+    if (activeNotionPageIds.has(notionPageId)) continue;
+
+    fs.rmSync(filePath, { force: true });
+
+    const slug = fileName.replace(/^\d{4}-\d{2}-\d{2}-/, "").replace(/\.md$/, "");
+    if (!activeSlugs.has(slug)) {
+      fs.rmSync(path.join(POST_IMAGES_DIR, slug), { recursive: true, force: true });
+    }
+
+    console.log(`삭제 완료: ${fileName}`);
   }
 }
 
