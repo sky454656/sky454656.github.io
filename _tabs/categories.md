@@ -98,7 +98,8 @@ order: 1
     {% endfor %}
     {% unless is_fixed %}
       {% assign other_count = other_count | plus: 1 %}
-      <a class="other-category" href="{{ '/category-view/' | append: category_name | slugify | append: '/' | relative_url }}">
+      {% capture other_category_url %}/category-view/{{ category_name | slugify }}/{% endcapture %}
+      <a class="other-category" href="{{ other_category_url | relative_url }}">
         <h3>{{ category_name }}</h3>
         <p>{{ category | last | size }} posts</p>
       </a>
