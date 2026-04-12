@@ -14,10 +14,13 @@ order: 1
   }
 
   .fixed-category {
+    display: block;
     padding: 1rem 1.1rem;
     border: 1px solid var(--main-border-color);
     border-radius: 16px;
     background: var(--card-bg);
+    color: inherit;
+    text-decoration: none;
   }
 
   .fixed-category h3 {
@@ -39,10 +42,13 @@ order: 1
   }
 
   .other-category {
+    display: block;
     padding: 1rem 1.1rem;
     border: 1px dashed var(--main-border-color);
     border-radius: 16px;
     background: var(--card-bg);
+    color: inherit;
+    text-decoration: none;
   }
 </style>
 
@@ -51,13 +57,30 @@ order: 1
 ## Categories
 
 <div class="fixed-categories">
-  {% for category_name in fixed_category_names %}
-    {% assign category_posts = site.categories[category_name] %}
-    <div class="fixed-category">
-      <h3>{{ category_name }}</h3>
-      <p>{{ category_posts | size | default: 0 }} posts</p>
-    </div>
-  {% endfor %}
+  <a class="fixed-category" href="{{ '/categories/dev/' | relative_url }}">
+    <h3>개발</h3>
+    <p>{{ site.categories['개발'] | size | default: 0 }} posts</p>
+  </a>
+  <a class="fixed-category" href="{{ '/categories/ctf-wargame/' | relative_url }}">
+    <h3>CTF/Wargame</h3>
+    <p>{{ site.categories['CTF/Wargame'] | size | default: 0 }} posts</p>
+  </a>
+  <a class="fixed-category" href="{{ '/categories/bugbounty/' | relative_url }}">
+    <h3>BugBounty</h3>
+    <p>{{ site.categories['BugBounty'] | size | default: 0 }} posts</p>
+  </a>
+  <a class="fixed-category" href="{{ '/categories/blog-docs/' | relative_url }}">
+    <h3>블로그/기술문서</h3>
+    <p>{{ site.categories['블로그/기술문서'] | size | default: 0 }} posts</p>
+  </a>
+  <a class="fixed-category" href="{{ '/categories/papers-conferences/' | relative_url }}">
+    <h3>논문/컨퍼런스</h3>
+    <p>{{ site.categories['논문/컨퍼런스'] | size | default: 0 }} posts</p>
+  </a>
+  <a class="fixed-category" href="{{ '/categories/contests-cert/' | relative_url }}">
+    <h3>공모전/자격증</h3>
+    <p>{{ site.categories['공모전/자격증'] | size | default: 0 }} posts</p>
+  </a>
 </div>
 
 <h2>Other Categories</h2>
@@ -75,10 +98,10 @@ order: 1
     {% endfor %}
     {% unless is_fixed %}
       {% assign other_count = other_count | plus: 1 %}
-      <div class="other-category">
+      <a class="other-category" href="{{ '/categories/' | append: category_name | slugify | append: '/' | relative_url }}">
         <h3>{{ category_name }}</h3>
         <p>{{ category | last | size }} posts</p>
-      </div>
+      </a>
     {% endunless %}
   {% endfor %}
 </div>
