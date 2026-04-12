@@ -1,20 +1,21 @@
 ---
 layout: page
 title: "개발"
-permalink: /categories/dev/
+permalink: /category-view/dev/
 category_name: "개발"
 ---
 
-{% assign posts = site.posts | where_exp: "post", "post.categories contains page.category_name" %}
-
 ## Posts
 
-{% if posts.size > 0 %}
+{% assign post_count = 0 %}
 <ul>
-  {% for post in posts %}
-    <li><a href="{{ post.url | relative_url }}">{{ post.title }}</a></li>
+  {% for post in site.posts %}
+    {% if post.categories contains page.category_name %}
+      {% assign post_count = post_count | plus: 1 %}
+      <li><a href="{{ post.url | relative_url }}">{{ post.title }}</a></li>
+    {% endif %}
   {% endfor %}
 </ul>
-{% else %}
+{% if post_count == 0 %}
 이 카테고리의 포스트가 아직 없습니다.
 {% endif %}

@@ -1,8 +1,8 @@
 ---
 layout: page
-title: "블로그/기술문서"
-permalink: /category-view/blog-docs/
-category_name: "블로그/기술문서"
+title: "test"
+permalink: /category-view/test/
+category_name: "test"
 ---
 
 ## Posts

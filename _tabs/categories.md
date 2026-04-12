@@ -57,27 +57,27 @@ order: 1
 ## Categories
 
 <div class="fixed-categories">
-  <a class="fixed-category" href="{{ '/categories/dev/' | relative_url }}">
+  <a class="fixed-category" href="{{ '/category-view/dev/' | relative_url }}">
     <h3>개발</h3>
     <p>{{ site.categories['개발'] | size | default: 0 }} posts</p>
   </a>
-  <a class="fixed-category" href="{{ '/categories/ctf-wargame/' | relative_url }}">
+  <a class="fixed-category" href="{{ '/category-view/ctf-wargame/' | relative_url }}">
     <h3>CTF/Wargame</h3>
     <p>{{ site.categories['CTF/Wargame'] | size | default: 0 }} posts</p>
   </a>
-  <a class="fixed-category" href="{{ '/categories/bugbounty/' | relative_url }}">
+  <a class="fixed-category" href="{{ '/category-view/bugbounty/' | relative_url }}">
     <h3>BugBounty</h3>
     <p>{{ site.categories['BugBounty'] | size | default: 0 }} posts</p>
   </a>
-  <a class="fixed-category" href="{{ '/categories/blog-docs/' | relative_url }}">
+  <a class="fixed-category" href="{{ '/category-view/blog-docs/' | relative_url }}">
     <h3>블로그/기술문서</h3>
     <p>{{ site.categories['블로그/기술문서'] | size | default: 0 }} posts</p>
   </a>
-  <a class="fixed-category" href="{{ '/categories/papers-conferences/' | relative_url }}">
+  <a class="fixed-category" href="{{ '/category-view/papers-conferences/' | relative_url }}">
     <h3>논문/컨퍼런스</h3>
     <p>{{ site.categories['논문/컨퍼런스'] | size | default: 0 }} posts</p>
   </a>
-  <a class="fixed-category" href="{{ '/categories/contests-cert/' | relative_url }}">
+  <a class="fixed-category" href="{{ '/category-view/contests-cert/' | relative_url }}">
     <h3>공모전/자격증</h3>
     <p>{{ site.categories['공모전/자격증'] | size | default: 0 }} posts</p>
   </a>
@@ -98,7 +98,7 @@ order: 1
     {% endfor %}
     {% unless is_fixed %}
       {% assign other_count = other_count | plus: 1 %}
-      <a class="other-category" href="{{ '/archives/categories/' | append: category_name | slugify | append: '/' | relative_url }}">
+      <a class="other-category" href="{{ '/category-view/' | append: category_name | slugify | append: '/' | relative_url }}">
         <h3>{{ category_name }}</h3>
         <p>{{ category | last | size }} posts</p>
       </a>
