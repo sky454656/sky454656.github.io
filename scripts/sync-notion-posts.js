@@ -361,7 +361,7 @@ async function main() {
   const activeNotionPageIds = new Set();
   const activeSlugs = new Set();
 
-  for (const page of pages) {
+  for (const [pageIndex, page] of pages.entries()) {
     const meta = extractPageMeta(page);
     const blocks = await getBlockChildren(page.id);
     const postImageDir = path.join(POST_IMAGES_DIR, meta.slug);
@@ -389,6 +389,7 @@ async function main() {
       `title: "${escapeYaml(meta.title)}"`,
       `date: ${meta.date}`,
       `notion_page_id: "${page.id}"`,
+      `notion_order: ${pageIndex + 1}`,
     ];
 
     if (meta.category) {
