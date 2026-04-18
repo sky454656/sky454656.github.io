@@ -1,6 +1,6 @@
 ---
 title: "Notion-git 자동화 테스트"
-date: 2026-04-10 00:11:00 +0900
+date: 2026-04-10
 notion_page_id: "33dd0542-16a9-80d3-94f3-eafbc405798a"
 categories: [test]
 tags: [test, notion]

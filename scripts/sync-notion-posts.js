@@ -78,11 +78,6 @@ function getSeoulDateParts(value) {
   };
 }
 
-function formatSeoulDateTime(value) {
-  const parts = getSeoulDateParts(value);
-  return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}:${parts.second} +0900`;
-}
-
 function getTodayDate() {
   const parts = getSeoulDateParts();
   return `${parts.year}-${parts.month}-${parts.day}`;
@@ -351,19 +346,14 @@ function extractPageMeta(page) {
   const slug = slugify(slugRaw || title);
 
   const rawDateStart = dateProp?.date?.start || "";
-  const createdTime = page.created_time || new Date().toISOString();
   const dateOnly = formatDateOnly(rawDateStart) || getTodayDate();
-  const hasExplicitTime = rawDateStart.includes("T");
-  const dateTime = hasExplicitTime
-    ? formatSeoulDateTime(rawDateStart)
-    : `${dateOnly} ${formatSeoulDateTime(createdTime).slice(11)}`;
   const tags = Array.isArray(tagsProp?.multi_select)
     ? tagsProp.multi_select.map((t) => t.name)
     : [];
   const category = categoryProp?.select?.name || "";
   const summary = summaryProp?.rich_text ? richTextToPlain(summaryProp.rich_text) : "";
 
-  return { title, slug, date: dateOnly, dateTime, tags, category, summary };
+  return { title, slug, date: dateOnly, tags, category, summary };
 }
 
 async function main() {
@@ -397,7 +387,7 @@ async function main() {
     const frontMatterLines = [
       "---",
       `title: "${escapeYaml(meta.title)}"`,
-      `date: ${meta.dateTime}`,
+      `date: ${meta.date}`,
       `notion_page_id: "${page.id}"`,
     ];
 
