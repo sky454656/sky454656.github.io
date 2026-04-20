@@ -2,7 +2,7 @@
 title: "Notion Sync Test"
 date: 2026-04-10
 notion_page_id: "33dd0542-16a9-80c7-933a-d5ed7c0fad49"
-notion_order: 1
+notion_order: 3
 categories: [test]
 tags: [test, notion]
 description: "notion에서 작성한 테스트 글"
