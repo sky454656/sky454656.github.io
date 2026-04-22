@@ -1,12 +1,17 @@
 #!/usr/bin/env ruby
 
-# Keep date front matter date-only while preserving the order returned by Notion.
-Jekyll::Hooks.register :site, :post_read do |site|
+def sort_notion_posts(site)
   site.posts.docs.sort_by! do |post|
-    if post.data.key?('notion_order')
-      [0, post.data['notion_order'].to_i, post.basename_without_ext]
-    else
-      [1, -post.date.to_i, post.basename_without_ext]
-    end
+    notion_order = post.data.key?('notion_order') ? post.data['notion_order'].to_i : 999_999
+    [post.date.to_i, notion_order, post.basename_without_ext]
   end
+end
+
+# Keep post lists chronological while using Notion order only as a same-date tie breaker.
+Jekyll::Hooks.register :site, :post_read do |site|
+  sort_notion_posts(site)
+end
+
+Jekyll::Hooks.register :site, :pre_render do |site|
+  sort_notion_posts(site)
 end

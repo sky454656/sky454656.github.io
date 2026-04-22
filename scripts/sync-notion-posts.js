@@ -10,24 +10,87 @@ const DATABASE_ID = process.env.NOTION_DATABASE_ID;
 const POSTS_DIR = path.join(process.cwd(), "_posts");
 const POST_IMAGES_DIR = path.join(process.cwd(), "assets", "img", "posts");
 
-if (!process.env.NOTION_TOKEN) {
-  throw new Error("NOTION_TOKEN 이 없습니다.");
+function normalizeCodeLanguage(language = "") {
+  const normalized = String(language || "").trim().toLowerCase();
+
+  const aliases = {
+    "plain text": "plaintext",
+    plain_text: "plaintext",
+    text: "plaintext",
+  };
+
+  return aliases[normalized] || normalized.replace(/\s+/g, "-");
 }
 
-if (!DATABASE_ID) {
-  throw new Error("NOTION_DATABASE_ID 가 없습니다.");
+function getCodeFence(content = "") {
+  const longestBacktickRun = Math.max(
+    2,
+    ...Array.from(String(content).matchAll(/`+/g), (match) => match[0].length)
+  );
+
+  return "`".repeat(longestBacktickRun + 1);
 }
 
-if (!fs.existsSync(POSTS_DIR)) {
-  fs.mkdirSync(POSTS_DIR, { recursive: true });
-}
+function codeBlockToMarkdown(language, content = "") {
+  const lang = normalizeCodeLanguage(language);
+  const body = redactSensitiveText(content);
+  const fence = getCodeFence(body);
+  const trailingNewline = body.endsWith("\n") ? "" : "\n";
 
-if (!fs.existsSync(POST_IMAGES_DIR)) {
-  fs.mkdirSync(POST_IMAGES_DIR, { recursive: true });
+  return `${fence}${lang}\n${body}${trailingNewline}${fence}`;
 }
 
 function richTextToPlain(richTextArray = []) {
   return richTextArray.map((item) => item.plain_text || "").join("");
+}
+
+function redactSensitiveText(value = "") {
+  return String(value)
+    .replace(/X-Amz-Credential=ASIA[A-Z0-9%/._+-]*/g, "X-Amz-Credential=REDACTED")
+    .replace(/X-Amz-Security-Token=[^&\s)]+/g, "X-Amz-Security-Token=REDACTED")
+    .replace(/X-Amz-Signature=[^&\s)]+/g, "X-Amz-Signature=REDACTED")
+    .replace(/Authorization:\s*Bearer\s+[A-Za-z0-9._-]+/g, "Authorization: Bearer REDACTED")
+    .replace(/(access_token|refresh_token|id_token|token|password)=([^&\s]+)/gi, "$1=REDACTED");
+}
+
+function isSignedAwsUrl(url = "") {
+  return /[?&]X-Amz-(Credential|Security-Token|Signature)=/.test(String(url));
+}
+
+function escapeMarkdownTableCell(value = "") {
+  return String(value).replace(/\|/g, "\\|").replace(/\r?\n/g, "<br>");
+}
+
+function richTextToMarkdown(richTextArray = []) {
+  return richTextArray
+    .map((item) => {
+      let text = redactSensitiveText(item.plain_text || "");
+      const annotations = item.annotations || {};
+
+      if (!text) return "";
+
+      if (annotations.code) {
+        const tick = text.includes("`") ? "``" : "`";
+        text = `${tick}${text}${tick}`;
+      } else {
+        if (annotations.bold) text = `**${text}**`;
+        if (annotations.italic) text = `*${text}*`;
+        if (annotations.strikethrough) text = `~~${text}~~`;
+        if (annotations.underline) text = `<u>${text}</u>`;
+      }
+
+      const href = item.href || item.text?.link?.url;
+      if (href) {
+        text = isSignedAwsUrl(href) ? text : `[${text}](${redactSensitiveText(href)})`;
+      }
+
+      return text;
+    })
+    .join("")
+    .replace(/\r?\n/g, "<br>\n")
+    .replace(/^(<br>\n?)+/g, "")
+    .replace(/^(<br>\n?)+$/g, "")
+    .replace(/(<br>\n)+$/g, "");
 }
 
 function slugify(text) {
@@ -91,6 +154,16 @@ function sanitizeFileName(value) {
     .replace(/^-|-$/g, "");
 }
 
+function ensureOutputDirs() {
+  if (!fs.existsSync(POSTS_DIR)) {
+    fs.mkdirSync(POSTS_DIR, { recursive: true });
+  }
+
+  if (!fs.existsSync(POST_IMAGES_DIR)) {
+    fs.mkdirSync(POST_IMAGES_DIR, { recursive: true });
+  }
+}
+
 function parseFrontMatter(content) {
   const match = String(content || "").match(/^---\n([\s\S]*?)\n---/);
   if (!match) return {};
@@ -104,6 +177,32 @@ function parseFrontMatter(content) {
     result[key] = value;
   }
   return result;
+}
+
+function getPostSlugFromFileName(fileName) {
+  return String(fileName || "").replace(/^\d{4}-\d{2}-\d{2}-/, "").replace(/\.md$/, "");
+}
+
+function getExistingNotionPosts() {
+  const posts = new Map();
+  const postFiles = fs.readdirSync(POSTS_DIR).filter((fileName) => fileName.endsWith(".md"));
+
+  for (const fileName of postFiles) {
+    const filePath = path.join(POSTS_DIR, fileName);
+    const content = fs.readFileSync(filePath, "utf8");
+    const frontMatter = parseFrontMatter(content);
+    const notionPageId = frontMatter.notion_page_id;
+
+    if (!notionPageId) continue;
+
+    posts.set(notionPageId, {
+      fileName,
+      filePath,
+      slug: getPostSlugFromFileName(fileName),
+    });
+  }
+
+  return posts;
 }
 
 function getFileExtension(url, contentType) {
@@ -152,7 +251,7 @@ async function downloadImage(url, outputPath) {
 async function imageBlockToMarkdown(block, meta, imageIndex) {
   const image = block.image;
   const sourceUrl = image.type === "external" ? image.external.url : image.file.url;
-  const caption = richTextToPlain(image.caption);
+  const caption = richTextToMarkdown(image.caption);
   const alt = escapeYaml(caption || meta.title || `image-${imageIndex}`);
   const postImageDir = path.join(POST_IMAGES_DIR, meta.slug);
   const fileBaseName = sanitizeFileName(`${meta.date}-${meta.slug}-${imageIndex}`) || `image-${imageIndex}`;
@@ -170,12 +269,55 @@ async function imageBlockToMarkdown(block, meta, imageIndex) {
 
     fs.renameSync(tempPath, outputPath);
 
-    return `![${alt}](/assets/img/posts/${meta.slug}/${fileName})`;
+    return mediaMarkdown(`/assets/img/posts/${meta.slug}/${fileName}`, alt, caption);
   } catch (error) {
     fs.rmSync(tempPath, { force: true });
     console.warn(`이미지 저장 실패 (${sourceUrl}): ${error.message}`);
-    return `![${alt}](${sourceUrl})`;
+    return mediaMarkdown(sourceUrl, alt, caption);
   }
+}
+
+function mediaMarkdown(url, alt, caption = "") {
+  if (isSignedAwsUrl(url)) {
+    return caption || "<!-- image omitted: signed URL redacted -->";
+  }
+
+  const markdown = `![${alt}](${url})`;
+  if (!caption) return markdown;
+
+  return `${markdown}\n\n<small>${caption}</small>`;
+}
+
+function getUrlFileName(url, fallback = "file") {
+  try {
+    return path.basename(new URL(url).pathname) || fallback;
+  } catch (_error) {
+    return fallback;
+  }
+}
+
+function fileBlockToMarkdown(type, fileBlock) {
+  const url = fileBlock.type === "external" ? fileBlock.external.url : fileBlock.file.url;
+  const caption = richTextToMarkdown(fileBlock.caption);
+
+  if (isSignedAwsUrl(url)) {
+    return caption || "<!-- file omitted: signed URL redacted -->";
+  }
+
+  if (type === "video") {
+    return `<video controls src="${redactSensitiveText(url)}"></video>${
+      caption ? `\n\n<small>${caption}</small>` : ""
+    }`;
+  }
+
+  if (type === "audio") {
+    return `<audio controls src="${redactSensitiveText(url)}"></audio>${
+      caption ? `\n\n<small>${caption}</small>` : ""
+    }`;
+  }
+
+  const label = caption || getUrlFileName(url);
+  return `[${label}](${redactSensitiveText(url)})`;
 }
 
 async function resolveQueryTargetId() {
@@ -280,41 +422,135 @@ async function getBlockChildren(blockId) {
   return blocks;
 }
 
+function indentMarkdown(markdown, depth = 1) {
+  const indentation = "  ".repeat(depth);
+  return String(markdown)
+    .split("\n")
+    .map((line) => `${indentation}${line}`)
+    .join("\n");
+}
+
+function blockquoteMarkdown(markdown) {
+  return String(markdown)
+    .split("\n")
+    .map((line) => (line ? `> ${line}` : ">"))
+    .join("\n");
+}
+
+function joinMarkdownBlocks(parts) {
+  const blocks = parts.filter(Boolean);
+
+  return blocks
+    .map((part, index) => {
+      const previous = blocks[index - 1] || "";
+      const currentIsList = /^(\s*)([-*+]|\d+\.) /.test(part);
+      const previousIsList = /^(\s*)([-*+]|\d+\.) /.test(previous);
+      const separator = index > 0 && currentIsList && previousIsList ? "\n" : "\n\n";
+
+      return index === 0 ? part : `${separator}${part}`;
+    })
+    .join("");
+}
+
+function paragraphBlockToMarkdown(block) {
+  if (block.type !== "paragraph") return "";
+  const content = richTextToMarkdown(block.paragraph.rich_text).trim();
+  return content.replace(/<br>|\s/g, "") ? content : "";
+}
+
+function hasVisibleMarkdown(content = "") {
+  return String(content).replace(/<br>|\s/g, "") !== "";
+}
+
+async function getNestedMarkdown(block, context, options = {}) {
+  if (!block.has_children) return "";
+
+  const children = await getBlockChildren(block.id);
+  if (options.compactParagraphs && children.every((child) => child.type === "paragraph")) {
+    return children.map(paragraphBlockToMarkdown).filter(Boolean).join("<br>\n");
+  }
+
+  return blocksToMarkdown(children, context);
+}
+
+async function tableToMarkdown(block, context) {
+  const rows = await getBlockChildren(block.id);
+  const renderedRows = rows
+    .filter((row) => row.type === "table_row")
+    .map((row) =>
+      row.table_row.cells.map((cell) => escapeMarkdownTableCell(richTextToMarkdown(cell)))
+    );
+
+  if (!renderedRows.length) return "";
+
+  const width = Math.max(...renderedRows.map((row) => row.length));
+  const normalizedRows = renderedRows.map((row) => {
+    while (row.length < width) row.push("");
+    return row;
+  });
+  const header = normalizedRows[0];
+  const bodyRows = normalizedRows.slice(1);
+  const separator = Array.from({ length: width }, () => "---");
+  const rowsMarkdown = [header, separator, ...bodyRows].map((row) => `| ${row.join(" | ")} |`);
+  const nested = await getNestedMarkdown(block, context);
+
+  return nested ? `${rowsMarkdown.join("\n")}\n\n${nested}` : rowsMarkdown.join("\n");
+}
+
 async function blockToMarkdown(block, context) {
   const type = block.type;
+  const value = block[type];
+
+  if (!value) return "";
 
   if (type === "paragraph") {
-    return richTextToPlain(block.paragraph.rich_text);
+    const content = richTextToMarkdown(value.rich_text).trim();
+    const nested = await getNestedMarkdown(block, context);
+    if (!hasVisibleMarkdown(content)) return nested;
+    return nested ? joinMarkdownBlocks([content, nested]) : content;
   }
 
-  if (type === "heading_1") {
-    return `# ${richTextToPlain(block.heading_1.rich_text)}`;
+  if (/^heading_[1-6]$/.test(type)) {
+    const level = Number(type.slice(-1));
+    return `${"#".repeat(level)} ${richTextToMarkdown(value.rich_text)}`;
   }
 
-  if (type === "heading_2") {
-    return `## ${richTextToPlain(block.heading_2.rich_text)}`;
+  if (type === "bulleted_list_item" || type === "numbered_list_item") {
+    const marker = type === "bulleted_list_item" ? "-" : "1.";
+    const content = richTextToMarkdown(value.rich_text);
+    const nested = await getNestedMarkdown(block, context, { compactParagraphs: true });
+    return nested ? `${marker} ${content}\n${indentMarkdown(nested, 2)}` : `${marker} ${content}`;
   }
 
-  if (type === "heading_3") {
-    return `### ${richTextToPlain(block.heading_3.rich_text)}`;
-  }
-
-  if (type === "bulleted_list_item") {
-    return `- ${richTextToPlain(block.bulleted_list_item.rich_text)}`;
-  }
-
-  if (type === "numbered_list_item") {
-    return `1. ${richTextToPlain(block.numbered_list_item.rich_text)}`;
+  if (type === "to_do") {
+    const checked = value.checked ? "x" : " ";
+    const content = richTextToMarkdown(value.rich_text);
+    const nested = await getNestedMarkdown(block, context, { compactParagraphs: true });
+    return nested ? `- [${checked}] ${content}\n${indentMarkdown(nested, 2)}` : `- [${checked}] ${content}`;
   }
 
   if (type === "quote") {
-    return `> ${richTextToPlain(block.quote.rich_text)}`;
+    const content = richTextToMarkdown(value.rich_text);
+    const nested = await getNestedMarkdown(block, context);
+    return blockquoteMarkdown(joinMarkdownBlocks([content, nested]));
+  }
+
+  if (type === "callout") {
+    const icon = value.icon?.type === "emoji" ? `${value.icon.emoji} ` : "";
+    const content = `${icon}${richTextToMarkdown(value.rich_text)}`;
+    const nested = await getNestedMarkdown(block, context);
+    return blockquoteMarkdown(joinMarkdownBlocks([content, nested]));
+  }
+
+  if (type === "toggle") {
+    const summary = richTextToMarkdown(value.rich_text) || "Toggle";
+    const nested = await getNestedMarkdown(block, context);
+    return `<details>\n<summary>${summary}</summary>\n\n${nested}\n\n</details>`;
   }
 
   if (type === "code") {
-    const lang = block.code.language || "";
-    const content = richTextToPlain(block.code.rich_text);
-    return `\`\`\`${lang}\n${content}\n\`\`\``;
+    const content = richTextToPlain(value.rich_text);
+    return codeBlockToMarkdown(value.language, content);
   }
 
   if (type === "divider") {
@@ -326,7 +562,54 @@ async function blockToMarkdown(block, context) {
     return imageBlockToMarkdown(block, context.meta, context.imageIndex);
   }
 
-  return "";
+  if (type === "file" || type === "pdf" || type === "video" || type === "audio") {
+    return fileBlockToMarkdown(type, value);
+  }
+
+  if (type === "bookmark" || type === "link_preview" || type === "embed") {
+    const url = value.url;
+    const caption = richTextToMarkdown(value.caption);
+    return caption ? `[${caption}](${url})` : url;
+  }
+
+  if (type === "equation") {
+    return `$$\n${value.expression}\n$$`;
+  }
+
+  if (type === "table") {
+    return tableToMarkdown(block, context);
+  }
+
+  if (type === "table_of_contents") {
+    return "* TOC\n{:toc}";
+  }
+
+  if (type === "column_list" || type === "column" || type === "synced_block" || type === "template") {
+    return getNestedMarkdown(block, context);
+  }
+
+  if (type === "child_page") {
+    return `## ${value.title}`;
+  }
+
+  if (type === "child_database") {
+    return `## ${value.title}`;
+  }
+
+  return getNestedMarkdown(block, context);
+}
+
+async function blocksToMarkdown(blocks, context) {
+  const markdownParts = [];
+
+  for (const block of blocks) {
+    const markdown = await blockToMarkdown(block, context);
+    if (markdown) {
+      markdownParts.push(markdown);
+    }
+  }
+
+  return joinMarkdownBlocks(markdownParts);
 }
 
 function getProp(page, name) {
@@ -357,7 +640,18 @@ function extractPageMeta(page) {
 }
 
 async function main() {
+  if (!process.env.NOTION_TOKEN) {
+    throw new Error("NOTION_TOKEN 이 없습니다.");
+  }
+
+  if (!DATABASE_ID) {
+    throw new Error("NOTION_DATABASE_ID 가 없습니다.");
+  }
+
+  ensureOutputDirs();
+
   const pages = await getAllPages();
+  const existingNotionPosts = getExistingNotionPosts();
   const activeNotionPageIds = new Set();
   const activeSlugs = new Set();
 
@@ -365,7 +659,6 @@ async function main() {
     const meta = extractPageMeta(page);
     const blocks = await getBlockChildren(page.id);
     const postImageDir = path.join(POST_IMAGES_DIR, meta.slug);
-    const markdownParts = [];
     const context = {
       imageIndex: 0,
       meta,
@@ -375,14 +668,7 @@ async function main() {
 
     fs.rmSync(postImageDir, { recursive: true, force: true });
 
-    for (const block of blocks) {
-      const markdown = await blockToMarkdown(block, context);
-      if (markdown) {
-        markdownParts.push(markdown);
-      }
-    }
-
-    const markdownBody = markdownParts.join("\n\n");
+    const markdownBody = await blocksToMarkdown(blocks, context);
 
     const frontMatterLines = [
       "---",
@@ -410,6 +696,16 @@ async function main() {
 
     const fileName = `${meta.date}-${meta.slug}.md`;
     const filePath = path.join(POSTS_DIR, fileName);
+    const previousPost = existingNotionPosts.get(page.id);
+
+    if (previousPost && previousPost.filePath !== filePath) {
+      fs.rmSync(previousPost.filePath, { force: true });
+
+      if (previousPost.slug !== meta.slug) {
+        fs.rmSync(path.join(POST_IMAGES_DIR, previousPost.slug), { recursive: true, force: true });
+      }
+    }
+
     fs.writeFileSync(filePath, `${frontMatter}${markdownBody}\n`, "utf8");
 
     console.log(`생성 완료: ${fileName}`);
@@ -428,7 +724,7 @@ async function main() {
 
     fs.rmSync(filePath, { force: true });
 
-    const slug = fileName.replace(/^\d{4}-\d{2}-\d{2}-/, "").replace(/\.md$/, "");
+    const slug = getPostSlugFromFileName(fileName);
     if (!activeSlugs.has(slug)) {
       fs.rmSync(path.join(POST_IMAGES_DIR, slug), { recursive: true, force: true });
     }
@@ -437,7 +733,15 @@ async function main() {
   }
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}
+
+module.exports = {
+  codeBlockToMarkdown,
+  getCodeFence,
+  normalizeCodeLanguage,
+};
