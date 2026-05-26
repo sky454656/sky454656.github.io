@@ -2,7 +2,7 @@
 title: "Callstack"
 date: 2026-05-26
 notion_page_id: "357d0542-16a9-8048-8270-dfbc784d9127"
-notion_order: 1
+notion_order: 2
 description: "callstack 구현"
 ---
 ## Call stack 개략적으로 구현해보기.
