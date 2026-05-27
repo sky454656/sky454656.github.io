@@ -2,7 +2,7 @@
 title: "Reversing1"
 date: 2026-05-26
 notion_page_id: "236d0542-16a9-8013-a73b-e87b0b93c197"
-notion_order: 14
+notion_order: 13
 description: "reversing2"
 ---
 # 1. Debugging 실습 - 1
