@@ -22,6 +22,20 @@ function normalizeCodeLanguage(language = "") {
   return aliases[normalized] || normalized.replace(/\s+/g, "-");
 }
 
+function looksLikeRawHttpExchange(content = "") {
+  const firstNonEmptyLine = String(content)
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .find(Boolean);
+
+  if (!firstNonEmptyLine) {
+    return false;
+  }
+
+  return /^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+\S+\s+HTTP\/\d\.\d$/.test(firstNonEmptyLine) ||
+    /^HTTP\/\d\.\d\s+\d{3}\b/.test(firstNonEmptyLine);
+}
+
 function getCodeFence(content = "") {
   const longestBacktickRun = Math.max(
     2,
@@ -32,10 +46,14 @@ function getCodeFence(content = "") {
 }
 
 function codeBlockToMarkdown(language, content = "") {
-  const lang = normalizeCodeLanguage(language);
+  let lang = normalizeCodeLanguage(language);
   const body = redactSensitiveText(content);
   const fence = getCodeFence(body);
   const trailingNewline = body.endsWith("\n") ? "" : "\n";
+
+  if (looksLikeRawHttpExchange(body) && ["json", "javascript"].includes(lang)) {
+    lang = "plaintext";
+  }
 
   return `${fence}${lang}\n${body}${trailingNewline}${fence}`;
 }
@@ -154,6 +172,26 @@ function sanitizeFileName(value) {
     .replace(/^-|-$/g, "");
 }
 
+function getPostImageBaseName(meta, imageIndex) {
+  return sanitizeFileName(`${meta.date}-${meta.slug}-${imageIndex}`) || `image-${imageIndex}`;
+}
+
+function clearPostImages(postImageDir, meta) {
+  if (!fs.existsSync(postImageDir)) {
+    return;
+  }
+
+  const imagePrefix = `${sanitizeFileName(`${meta.date}-${meta.slug}`)}-`;
+
+  for (const fileName of fs.readdirSync(postImageDir)) {
+    if (!fileName.startsWith(imagePrefix)) {
+      continue;
+    }
+
+    fs.rmSync(path.join(postImageDir, fileName), { force: true });
+  }
+}
+
 function ensureOutputDirs() {
   if (!fs.existsSync(POSTS_DIR)) {
     fs.mkdirSync(POSTS_DIR, { recursive: true });
@@ -254,7 +292,7 @@ async function imageBlockToMarkdown(block, meta, imageIndex) {
   const caption = richTextToMarkdown(image.caption);
   const alt = escapeYaml(caption || meta.title || `image-${imageIndex}`);
   const postImageDir = path.join(POST_IMAGES_DIR, meta.slug);
-  const fileBaseName = sanitizeFileName(`${meta.date}-${meta.slug}-${imageIndex}`) || `image-${imageIndex}`;
+  const fileBaseName = getPostImageBaseName(meta, imageIndex);
   const tempPath = path.join(postImageDir, `${fileBaseName}.tmp`);
 
   if (!fs.existsSync(postImageDir)) {
@@ -639,6 +677,31 @@ function extractPageMeta(page) {
   return { title, slug, date: dateOnly, tags, category, summary };
 }
 
+function ensureUniqueSlug(meta, pageId, usedSlugs) {
+  const normalizedPageId = String(pageId || "").replace(/-/g, "");
+  const titleSlug = slugify(meta.title) || "post";
+  const candidates = [
+    meta.slug,
+    titleSlug,
+    slugify(`${meta.date}-${meta.title}`),
+    normalizedPageId ? `${meta.slug}-${normalizedPageId.slice(0, 8)}` : "",
+  ].filter(Boolean);
+
+  for (const candidate of candidates) {
+    if (usedSlugs.has(candidate)) {
+      continue;
+    }
+
+    usedSlugs.add(candidate);
+    return {
+      ...meta,
+      slug: candidate,
+    };
+  }
+
+  throw new Error(`고유 slug 를 만들 수 없습니다: ${meta.title}`);
+}
+
 async function main() {
   if (!process.env.NOTION_TOKEN) {
     throw new Error("NOTION_TOKEN 이 없습니다.");
@@ -654,9 +717,10 @@ async function main() {
   const existingNotionPosts = getExistingNotionPosts();
   const activeNotionPageIds = new Set();
   const activeSlugs = new Set();
+  const usedSlugs = new Set();
 
   for (const [pageIndex, page] of pages.entries()) {
-    const meta = extractPageMeta(page);
+    const meta = ensureUniqueSlug(extractPageMeta(page), page.id, usedSlugs);
     const blocks = await getBlockChildren(page.id);
     const postImageDir = path.join(POST_IMAGES_DIR, meta.slug);
     const context = {
@@ -666,7 +730,7 @@ async function main() {
     activeNotionPageIds.add(page.id);
     activeSlugs.add(meta.slug);
 
-    fs.rmSync(postImageDir, { recursive: true, force: true });
+    clearPostImages(postImageDir, meta);
 
     const markdownBody = await blocksToMarkdown(blocks, context);
 
