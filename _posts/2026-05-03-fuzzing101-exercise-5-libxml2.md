@@ -33,7 +33,7 @@ As a result, a remote attacker can exploit this issue to execute arbitrary code 
 
 You can find more information about stack buffer oveflow vulnerabilities at the following link: [https://cwe.mitre.org/data/definitions/121.html](https://cwe.mitre.org/data/definitions/121.html)
 
-![[Fuzzing101] Exercise 5 - LibXML2](/assets/img/posts/fuzzing101/2026-05-03-fuzzing101-1.png)
+![[Fuzzing101] Exercise 5 - LibXML2](/assets/img/posts/fuzzing101-exercise-5-libxml2/2026-05-03-fuzzing101-exercise-5-libxml2-1.png)
 
 # **Do it yourself!**
 
@@ -183,7 +183,7 @@ master fuzzer
 afl-fuzz -m none -i ./in -o out -s 123 -x ./xml.dict -D -M master -- ./install-asan/bin/xmllint --memory --noenc --nocdata --dtdattr --loaddtd --valid --xinclude @@
 ```
 
-![[Fuzzing101] Exercise 5 - LibXML2](/assets/img/posts/fuzzing101/2026-05-03-fuzzing101-2.png)
+![[Fuzzing101] Exercise 5 - LibXML2](/assets/img/posts/fuzzing101-exercise-5-libxml2/2026-05-03-fuzzing101-exercise-5-libxml2-2.png)
 
 slave1
 
@@ -192,7 +192,7 @@ afl-fuzz -m none -i ./in -o out -s 124 -x ./xml.dict -S slave1 -- \
 ./install-asan/bin/xmllint --memory --noenc --nocdata --dtdattr --loaddtd --valid --xinclude @@
 ```
 
-![[Fuzzing101] Exercise 5 - LibXML2](/assets/img/posts/fuzzing101/2026-05-03-fuzzing101-3.png)
+![[Fuzzing101] Exercise 5 - LibXML2](/assets/img/posts/fuzzing101-exercise-5-libxml2/2026-05-03-fuzzing101-exercise-5-libxml2-3.png)
 
 slave2
 
@@ -201,7 +201,7 @@ afl-fuzz -m none -i ./in -o out -s 125 -x ./xml.dict -S slave2 -- \
 ./install-asan/bin/xmllint --memory --noenc --nocdata --dtdattr --loaddtd --valid --xinclude @@
 ```
 
-![[Fuzzing101] Exercise 5 - LibXML2](/assets/img/posts/fuzzing101/2026-05-03-fuzzing101-4.png)
+![[Fuzzing101] Exercise 5 - LibXML2](/assets/img/posts/fuzzing101-exercise-5-libxml2/2026-05-03-fuzzing101-exercise-5-libxml2-4.png)
 
 # Triage
 
@@ -568,6 +568,6 @@ if (englob && (size - len < 2)) {
 }
 ```
 
-![[Fuzzing101] Exercise 5 - LibXML2](/assets/img/posts/fuzzing101/2026-05-03-fuzzing101-5.png)
+![[Fuzzing101] Exercise 5 - LibXML2](/assets/img/posts/fuzzing101-exercise-5-libxml2/2026-05-03-fuzzing101-exercise-5-libxml2-5.png)
 
 패치 후 `ASAN stack-buffer-overflow` 가 뜨지 않는 것을 확인 가능하다.

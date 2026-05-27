@@ -97,7 +97,7 @@ mkdir -p in
 find ~/fuzzing_libexif/exif-samples-master/jpg -type f \( -iname "*.jpg" -o -iname "*.jpeg" \) -exec cp {} ~/fuzzing_libexif/in/ \;
 ```
 
-![[Fuzzing101] Exercise 2 - libexif](/assets/img/posts/fuzzing101/2026-04-27-fuzzing101-1.png)
+![[Fuzzing101] Exercise 2 - libexif](/assets/img/posts/fuzzing101-exercise-2-libexif/2026-04-27-fuzzing101-exercise-2-libexif-1.png)
 
 시드가 잘 확보된 것을 확인할 수 있다.
 
@@ -140,7 +140,7 @@ make install
 afl-fuzz -i in -o out -s 123 -- ./install/bin/exif @@
 ```
 
-![[Fuzzing101] Exercise 2 - libexif](/assets/img/posts/fuzzing101/2026-04-27-fuzzing101-2.png)
+![[Fuzzing101] Exercise 2 - libexif](/assets/img/posts/fuzzing101-exercise-2-libexif/2026-04-27-fuzzing101-exercise-2-libexif-2.png)
 
 ## Triage - 1
 
@@ -249,7 +249,7 @@ set env ASAN_OPTIONS abort_on_error=1:symbolize=1:detect_leaks=0
 run
 ```
 
-![[Fuzzing101] Exercise 2 - libexif](/assets/img/posts/fuzzing101/2026-04-27-fuzzing101-3.png)
+![[Fuzzing101] Exercise 2 - libexif](/assets/img/posts/fuzzing101-exercise-2-libexif/2026-04-27-fuzzing101-exercise-2-libexif-3.png)
 
 `frame 2`  부터 분석 시작
 
@@ -409,7 +409,7 @@ $1 = 4294964943
 
 실제로 o 값이 `thumbnail_offset` 과 같음을 확인했다.
 
-![[Fuzzing101] Exercise 2 - libexif](/assets/img/posts/fuzzing101/2026-04-27-fuzzing101-4.png)
+![[Fuzzing101] Exercise 2 - libexif](/assets/img/posts/fuzzing101-exercise-2-libexif/2026-04-27-fuzzing101-exercise-2-libexif-4.png)
 
 실제 `d + offset + 12*i + 8`  위치에 문제가 되는 값이 들어있었고, 해당 값을 검증 없이 사용해서 생기는 취약점이라고 판단했다.
 
@@ -427,7 +427,7 @@ exif_data_load_data_thumbnail (ExifData *data, const unsigned char *d,
 	}
 ```
 
-![[Fuzzing101] Exercise 2 - libexif](/assets/img/posts/fuzzing101/2026-04-27-fuzzing101-5.png)
+![[Fuzzing101] Exercise 2 - libexif](/assets/img/posts/fuzzing101-exercise-2-libexif/2026-04-27-fuzzing101-exercise-2-libexif-5.png)
 
 `ds`  보다 offset  + size가 클 경우 return 하는데, 해당 파트에서 offset + size가 integer overflow가 발생했다.  조건문을 다음과 같이 수정한다.
 
@@ -440,7 +440,7 @@ if (ds < offset || ds - offset < size) {
 	}
 ```
 
-![[Fuzzing101] Exercise 2 - libexif](/assets/img/posts/fuzzing101/2026-04-27-fuzzing101-6.png)
+![[Fuzzing101] Exercise 2 - libexif](/assets/img/posts/fuzzing101-exercise-2-libexif/2026-04-27-fuzzing101-exercise-2-libexif-6.png)
 
 더 이상 SIGSEGV가 발생하지 않는다.
 
@@ -532,7 +532,7 @@ if ((offset > ds) || (6 + 2 > ds - offset)) {
 
 다음과 같이 수정하면  overflow나 underflow를 방지할 수 있다.
 
-![[Fuzzing101] Exercise 2 - libexif](/assets/img/posts/fuzzing101/2026-04-27-fuzzing101-7.png)
+![[Fuzzing101] Exercise 2 - libexif](/assets/img/posts/fuzzing101-exercise-2-libexif/2026-04-27-fuzzing101-exercise-2-libexif-7.png)
 
 크래시가 아니라 오류 메세지를 출력하면서 종료된다.
 
@@ -706,7 +706,7 @@ pwndbg>
 
 `o + s > buf_size`이면 return 을 하는데,  제대로 처리되었는지 확인한다.
 
-![[Fuzzing101] Exercise 2 - libexif](/assets/img/posts/fuzzing101/2026-04-27-fuzzing101-8.png)
+![[Fuzzing101] Exercise 2 - libexif](/assets/img/posts/fuzzing101-exercise-2-libexif/2026-04-27-fuzzing101-exercise-2-libexif-8.png)
 
 이 부분에서 오버플로우가 발생한 것을 알 수 있다. 아래와 같이 수정하면 오버플로우를 막을 수 있다.
 

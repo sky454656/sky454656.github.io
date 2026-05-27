@@ -142,11 +142,11 @@ So, basically the fuzzer will run the command
 
 `$HOME/fuzzing_xpdf/install/bin/pdftotext <input-file-name> $HOME/fuzzing_xpdf/output` for each different input file.
 
-![[Fuzzing101] Exercise 1 - Xpdf](/assets/img/posts/fuzzing101/2026-04-20-fuzzing101-1.png)
+![[Fuzzing101] Exercise 1 - Xpdf](/assets/img/posts/fuzzing101-exercise-1-xpdf/2026-04-20-fuzzing101-exercise-1-xpdf-1.png)
 
 pdftotext는 pdf 파일을 읽어서 txt로 출력해주는 프로그램이다. 해당 프로그램을 퍼징해 보는 것이 Exercise 1인 것이다.
 
-![[Fuzzing101] Exercise 1 - Xpdf](/assets/img/posts/fuzzing101/2026-04-20-fuzzing101-2.png)
+![[Fuzzing101] Exercise 1 - Xpdf](/assets/img/posts/fuzzing101-exercise-1-xpdf/2026-04-20-fuzzing101-exercise-1-xpdf-2.png)
 
 - `run time : 0 days, 0 hrs, 3 min, 19 sec`<br>
 → 실행 중
@@ -160,7 +160,7 @@ pdftotext는 pdf 파일을 읽어서 txt로 출력해주는 프로그램이다. 
 - `new edges on : 284` 
     → 새로운 경로
 
-![[Fuzzing101] Exercise 1 - Xpdf](/assets/img/posts/fuzzing101/2026-04-20-fuzzing101-3.png)
+![[Fuzzing101] Exercise 1 - Xpdf](/assets/img/posts/fuzzing101-exercise-1-xpdf/2026-04-20-fuzzing101-exercise-1-xpdf-3.png)
 
 3개의 크래시를 찾았으므로 프로그램을 종료하고 분석을 진행한다.
 
@@ -251,11 +251,11 @@ info args
 
 `frame <number> `: 현재 프레임을 <number>로 바꿈
 
-![[Fuzzing101] Exercise 1 - Xpdf](/assets/img/posts/fuzzing101/2026-04-20-fuzzing101-4.png)
+![[Fuzzing101] Exercise 1 - Xpdf](/assets/img/posts/fuzzing101-exercise-1-xpdf/2026-04-20-fuzzing101-exercise-1-xpdf-4.png)
 
 `list`  : 선택된 프레임 근처의 소스 코드 보여줌
 
-![[Fuzzing101] Exercise 1 - Xpdf](/assets/img/posts/fuzzing101/2026-04-20-fuzzing101-5.png)
+![[Fuzzing101] Exercise 1 - Xpdf](/assets/img/posts/fuzzing101-exercise-1-xpdf/2026-04-20-fuzzing101-exercise-1-xpdf-5.png)
 
 `info locals`  : 선택된 프레임의 지역변수 값 보여줌
 
@@ -765,7 +765,7 @@ stream
 
 이런 구조
 
-![[Fuzzing101] Exercise 1 - Xpdf](/assets/img/posts/fuzzing101/2026-04-20-fuzzing101-6.png)
+![[Fuzzing101] Exercise 1 - Xpdf](/assets/img/posts/fuzzing101-exercise-1-xpdf/2026-04-20-fuzzing101-exercise-1-xpdf-6.png)
 
 CVE-2019-13288
 

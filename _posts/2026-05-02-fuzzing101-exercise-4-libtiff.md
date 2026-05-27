@@ -38,7 +38,7 @@ make install
 
 빌드가 잘 되었다.
 
-![[Fuzzing101] Exercise 4 - LibTIFF](/assets/img/posts/fuzzing101/2026-05-02-fuzzing101-1.png)
+![[Fuzzing101] Exercise 4 - LibTIFF](/assets/img/posts/fuzzing101-exercise-4-libtiff/2026-05-02-fuzzing101-exercise-4-libtiff-1.png)
 
 ## AFL++ LTO + ASan으로 다시 빌드
 
@@ -62,7 +62,7 @@ afl-fuzz -m none -i ./tiff-4.0.4/test/images -o out -s 123 -- \
   ./install-asan/bin/tiffinfo -D -j -c -r -s -w @@
 ```
 
-![[Fuzzing101] Exercise 4 - LibTIFF](/assets/img/posts/fuzzing101/2026-05-02-fuzzing101-2.png)
+![[Fuzzing101] Exercise 4 - LibTIFF](/assets/img/posts/fuzzing101-exercise-4-libtiff/2026-05-02-fuzzing101-exercise-4-libtiff-2.png)
 
 # **Code coverage**
 
@@ -113,7 +113,7 @@ make install
 
 다음과 같이 실행하고,  소스 디렉터리 안에 `.gcda`, `.gcno` 같은 파일이 생기면 커버리지 데이터가 기록되고 있는 것이다.
 
-![[Fuzzing101] Exercise 4 - LibTIFF](/assets/img/posts/fuzzing101/2026-05-02-fuzzing101-3.png)
+![[Fuzzing101] Exercise 4 - LibTIFF](/assets/img/posts/fuzzing101-exercise-4-libtiff/2026-05-02-fuzzing101-exercise-4-libtiff-3.png)
 
 ### seed corpus 전체를 실행해서 커버리지 수집
 
@@ -155,7 +155,7 @@ genhtml coverage.info --output-directory coverage-html
 
 로 열고 [`http://localhost:8000/`](http://localhost:8000/) 로 접속해서 확인
 
-![[Fuzzing101] Exercise 4 - LibTIFF](/assets/img/posts/fuzzing101/2026-05-02-fuzzing101-4.png)
+![[Fuzzing101] Exercise 4 - LibTIFF](/assets/img/posts/fuzzing101-exercise-4-libtiff/2026-05-02-fuzzing101-exercise-4-libtiff-4.png)
 
 `test/images`에 있는 seed들을 전부 `tiffinfo -D -j -c -r -s -w`로 실행했을 때 도달한 코드 커버리
 
@@ -178,7 +178,7 @@ lcov --capture --directory ./tiff-4.0.4 --output-file afl_queue_coverage.info
 genhtml afl_queue_coverage.info --output-directory afl-coverage-html
 ```
 
-![[Fuzzing101] Exercise 4 - LibTIFF](/assets/img/posts/fuzzing101/2026-05-02-fuzzing101-5.png)
+![[Fuzzing101] Exercise 4 - LibTIFF](/assets/img/posts/fuzzing101-exercise-4-libtiff/2026-05-02-fuzzing101-exercise-4-libtiff-5.png)
 
 초기 seed만 실했했을 때보다 커버리지가 상승한 것을 확인할  수 있다.
 
@@ -186,7 +186,7 @@ genhtml afl_queue_coverage.info --output-directory afl-coverage-html
 
 파일별/함수별/라인별로 실행된 곳과 안 된 곳 확인 가능
 
-![[Fuzzing101] Exercise 4 - LibTIFF](/assets/img/posts/fuzzing101/2026-05-02-fuzzing101-6.png)
+![[Fuzzing101] Exercise 4 - LibTIFF](/assets/img/posts/fuzzing101-exercise-4-libtiff/2026-05-02-fuzzing101-exercise-4-libtiff-6.png)
 
 #### 실행 옵션 개선
 
@@ -528,7 +528,7 @@ TIFFVSetField(TIFF* tif, uint32 tag, va_list ap)
 
 로그를 참고할 때, 여기서 `(*tif->tif_tagmethods.vsetfield)(tif, tag, ap)`  가 `_TIFFVSetField`
 
-![[Fuzzing101] Exercise 4 - LibTIFF](/assets/img/posts/fuzzing101/2026-05-02-fuzzing101-7.png)
+![[Fuzzing101] Exercise 4 - LibTIFF](/assets/img/posts/fuzzing101-exercise-4-libtiff/2026-05-02-fuzzing101-exercise-4-libtiff-7.png)
 
 확인해보니 맞다
 

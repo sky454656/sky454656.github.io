@@ -68,7 +68,7 @@ make
 make install
 ```
 
-![[Fuzzing101] Exercise 3 - TCPdump](/assets/img/posts/fuzzing101/2026-04-29-fuzzing101-1.png)
+![[Fuzzing101] Exercise 3 - TCPdump](/assets/img/posts/fuzzing101-exercise-3-tcpdump/2026-04-29-fuzzing101-exercise-3-tcpdump-1.png)
 
 잘 빌드가 되었다.
 
@@ -98,7 +98,7 @@ unset ASAN_OPTIONS
 afl-fuzz -m none -i in -o out -s 123 -- ./tcpdump-tcpdump-4.9.1/tcpdump -nn -r @@
 ```
 
-![[Fuzzing101] Exercise 3 - TCPdump](/assets/img/posts/fuzzing101/2026-04-29-fuzzing101-2.png)
+![[Fuzzing101] Exercise 3 - TCPdump](/assets/img/posts/fuzzing101-exercise-3-tcpdump/2026-04-29-fuzzing101-exercise-3-tcpdump-2.png)
 
 4시간 가량 돌려서 2개의 크래시를 찾았지만 둘 다 해당 CVE와는 관련 없었다.
 
@@ -116,7 +116,7 @@ afl-fuzz -m none -i in -o out -s 123 -- ./tcpdump-tcpdump-4.9.1/tcpdump -nn -r @
 afl-fuzz -m none -i in -o out -s 123 -- ./tcpdump-tcpdump-4.9.1/tcpdump -vvvvXX -ee -nn -r @@
 ```
 
-![[Fuzzing101] Exercise 3 - TCPdump](/assets/img/posts/fuzzing101/2026-04-29-fuzzing101-3.png)
+![[Fuzzing101] Exercise 3 - TCPdump](/assets/img/posts/fuzzing101-exercise-3-tcpdump/2026-04-29-fuzzing101-exercise-3-tcpdump-3.png)
 
 추가 퍼징을 진행했으나 동일 크래시를 안정적으로 재현하지 못해, 최종적으로는 공식 테스트/재현용 패킷 파일에서 파생한 near-crash seed를 초기 입력으로 사용하여 bootp_print()의 heap-buffer-overflow를 재현했다
 
