@@ -505,7 +505,7 @@ rbp-0x18를 반복문의 index로 사용하여 반복문 진행 총 6회
 
 ` b *  0x55555555546d`
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-22.png)
+<!-- image omitted: signed URL redacted -->
 
 함수 내에서도 값 조작으로 보이는 것을 0x18번 진행한다.
 
