@@ -80,7 +80,7 @@ input : rsi
 
 그러므로 flag는 `CyKor{e766dd0f763d31c079ed2aa9767bf0cbc91f37a29d960abb212392223}`
 
-<!-- image omitted: signed URL redacted -->
+![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-7.png)
 
 # 2. Debugging 실습 - 2
 
