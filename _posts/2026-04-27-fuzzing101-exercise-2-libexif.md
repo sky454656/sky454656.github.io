@@ -427,7 +427,7 @@ exif_data_load_data_thumbnail (ExifData *data, const unsigned char *d,
 	}
 ```
 
-<!-- image omitted: signed URL redacted -->
+![[Fuzzing101] Exercise 2 - libexif](/assets/img/posts/fuzzing101-exercise-2-libexif/2026-04-27-fuzzing101-exercise-2-libexif-5.png)
 
 `ds`  보다 offset  + size가 클 경우 return 하는데, 해당 파트에서 offset + size가 integer overflow가 발생했다.  조건문을 다음과 같이 수정한다.
 
