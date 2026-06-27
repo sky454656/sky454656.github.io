@@ -192,7 +192,7 @@ afl-fuzz -m none -i ./in -o out -s 124 -x ./xml.dict -S slave1 -- \
 ./install-asan/bin/xmllint --memory --noenc --nocdata --dtdattr --loaddtd --valid --xinclude @@
 ```
 
-![[Fuzzing101] Exercise 5 - LibXML2](/assets/img/posts/fuzzing101-exercise-5-libxml2/2026-05-03-fuzzing101-exercise-5-libxml2-3.png)
+<!-- image omitted: signed URL redacted -->
 
 slave2
 
