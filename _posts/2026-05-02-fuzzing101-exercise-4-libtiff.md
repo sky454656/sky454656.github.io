@@ -180,7 +180,7 @@ genhtml afl_queue_coverage.info --output-directory afl-coverage-html
 
 ![[Fuzzing101] Exercise 4 - LibTIFF](/assets/img/posts/fuzzing101-exercise-4-libtiff/2026-05-02-fuzzing101-exercise-4-libtiff-5.png)
 
-초기 seed만 실했했을 때보다 커버리지가 상승한 것을 확인할  수 있다.
+초기 seed만 실행했을 때보다 커버리지가 상승한 것을 확인할  수 있다.
 
 ### 커버리지 활용법
 
