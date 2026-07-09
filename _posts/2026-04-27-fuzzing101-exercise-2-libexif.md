@@ -140,7 +140,7 @@ make install
 afl-fuzz -i in -o out -s 123 -- ./install/bin/exif @@
 ```
 
-![[Fuzzing101] Exercise 2 - libexif](/assets/img/posts/fuzzing101-exercise-2-libexif/2026-04-27-fuzzing101-exercise-2-libexif-2.png)
+<!-- image omitted: signed URL redacted -->
 
 ## Triage - 1
 
@@ -409,7 +409,7 @@ $1 = 4294964943
 
 실제로 o 값이 `thumbnail_offset` 과 같음을 확인했다.
 
-![[Fuzzing101] Exercise 2 - libexif](/assets/img/posts/fuzzing101-exercise-2-libexif/2026-04-27-fuzzing101-exercise-2-libexif-4.png)
+<!-- image omitted: signed URL redacted -->
 
 실제 `d + offset + 12*i + 8`  위치에 문제가 되는 값이 들어있었고, 해당 값을 검증 없이 사용해서 생기는 취약점이라고 판단했다.
 
