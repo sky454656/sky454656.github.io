@@ -765,7 +765,7 @@ stream
 
 이런 구조
 
-![[Fuzzing101] Exercise 1 - Xpdf](/assets/img/posts/fuzzing101-exercise-1-xpdf/2026-04-20-fuzzing101-exercise-1-xpdf-6.png)
+<!-- image omitted: signed URL redacted -->
 
 CVE-2019-13288
 
