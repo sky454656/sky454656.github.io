@@ -140,7 +140,7 @@ make install
 afl-fuzz -i in -o out -s 123 -- ./install/bin/exif @@
 ```
 
-<!-- image omitted: signed URL redacted -->
+![[Fuzzing101] Exercise 2 - libexif](/assets/img/posts/fuzzing101-exercise-2-libexif/2026-04-27-fuzzing101-exercise-2-libexif-2.png)
 
 ## Triage - 1
 
