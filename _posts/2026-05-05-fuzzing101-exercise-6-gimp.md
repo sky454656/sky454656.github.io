@@ -2,7 +2,7 @@
 title: "[Fuzzing101] Exercise 6 - GIMP"
 date: 2026-05-05
 notion_page_id: "355d0542-16a9-8094-aa74-f26c062a0cb6"
-notion_order: 4
+notion_order: 5
 categories: [블로그/기술문서]
 description: "Fuzzing101- Exercise 6"
 ---
@@ -20,7 +20,7 @@ Use after free errors occur when a program continues to use a pointer after it h
 
 This can have any number of adverse consequences, ranging from the corruption of valid data to the execution of arbitrary code.
 
-![[Fuzzing101] Exercise 6 - GIMP](/assets/img/posts/fuzzing101/2026-05-05-fuzzing101-1.png)
+![[Fuzzing101] Exercise 6 - GIMP](/assets/img/posts/fuzzing101-exercise-6-gimp/2026-05-05-fuzzing101-exercise-6-gimp-1.png)
 
 ` xcf_load_image function in app/xcf/xcf-load.c`  에 취약점이 있다.
 
@@ -241,7 +241,7 @@ afl-fuzz -m none -i ./in -o ./out -s 123 -x ./xcf.dict -D -t 100 -M master -- \
 
 나머지는 현재 내 환경에 맞게 옵션을 넣어주었다.
 
-![[Fuzzing101] Exercise 6 - GIMP](/assets/img/posts/fuzzing101/2026-05-05-fuzzing101-2.png)
+![[Fuzzing101] Exercise 6 - GIMP](/assets/img/posts/fuzzing101-exercise-6-gimp/2026-05-05-fuzzing101-exercise-6-gimp-2.png)
 
 slaves
 
@@ -249,13 +249,13 @@ slaves
 afl-fuzz -m none -i ./in -o ./out -s 124 -x ./xcf.dict -t 100 -S slave1 -- ./install-asan/bin/gimp-console-2.8 --verbose -d -f --gimprc ./fuzzing-gimprc --system-gimprc ./fuzzing-gimprc @@
 ```
 
-![[Fuzzing101] Exercise 6 - GIMP](/assets/img/posts/fuzzing101/2026-05-05-fuzzing101-3.png)
+![[Fuzzing101] Exercise 6 - GIMP](/assets/img/posts/fuzzing101-exercise-6-gimp/2026-05-05-fuzzing101-exercise-6-gimp-3.png)
 
 ```bash
 afl-fuzz -m none -i ./in -o ./out -s 125 -x ./xcf.dict -t 100 -S slave2 -- ./install-asan/bin/gimp-console-2.8 --verbose -d -f --gimprc ./fuzzing-gimprc --system-gimprc ./fuzzing-gimprc @@
 ```
 
-![[Fuzzing101] Exercise 6 - GIMP](/assets/img/posts/fuzzing101/2026-05-05-fuzzing101-4.png)
+![[Fuzzing101] Exercise 6 - GIMP](/assets/img/posts/fuzzing101-exercise-6-gimp/2026-05-05-fuzzing101-exercise-6-gimp-4.png)
 
 # Triage
 
