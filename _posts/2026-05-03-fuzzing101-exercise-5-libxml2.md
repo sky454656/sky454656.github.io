@@ -1,12 +1,10 @@
 ---
-title: "[Fuzzing101 #5] libxml2 병렬 퍼징: Stack Buffer Overflow 분석"
+title: "[Fuzzing101] Exercise 5 - LibXML2"
 date: 2026-05-03
 notion_page_id: "354d0542-16a9-804e-a572-d9c596808152"
 notion_order: 6
 categories: [블로그/기술문서]
-tags: [Fuzzing, AFL++, ASan, libxml2, Stack Buffer Overflow]
-description: "AFL++ master/slave 병렬 퍼징으로 libxml2의 CVE-2017-9048 Stack Buffer Overflow를 재현하고 ASan으로 분석합니다."
-portfolio_override: true
+description: "Fuzzing101- Exercise 5"
 ---
 For this exercise we will fuzz **LibXML2** XML parsing library. The goal is to find a crash/PoC for [**CVE-2017-9048**](https://nvd.nist.gov/vuln/detail/CVE-2017-9048) in LibXML2 2.9.4.
 
@@ -35,7 +33,7 @@ As a result, a remote attacker can exploit this issue to execute arbitrary code 
 
 You can find more information about stack buffer oveflow vulnerabilities at the following link: [https://cwe.mitre.org/data/definitions/121.html](https://cwe.mitre.org/data/definitions/121.html)
 
-![[Fuzzing101 #5] libxml2 병렬 퍼징: Stack Buffer Overflow 분석](/assets/img/posts/fuzzing101-exercise-5-libxml2/2026-05-03-fuzzing101-exercise-5-libxml2-1.png)
+![[Fuzzing101] Exercise 5 - LibXML2](/assets/img/posts/fuzzing101-exercise-5-libxml2/2026-05-03-fuzzing101-exercise-5-libxml2-1.png)
 
 # **Do it yourself!**
 
@@ -185,7 +183,7 @@ master fuzzer
 afl-fuzz -m none -i ./in -o out -s 123 -x ./xml.dict -D -M master -- ./install-asan/bin/xmllint --memory --noenc --nocdata --dtdattr --loaddtd --valid --xinclude @@
 ```
 
-![[Fuzzing101 #5] libxml2 병렬 퍼징: Stack Buffer Overflow 분석](/assets/img/posts/fuzzing101-exercise-5-libxml2/2026-05-03-fuzzing101-exercise-5-libxml2-2.png)
+![[Fuzzing101] Exercise 5 - LibXML2](/assets/img/posts/fuzzing101-exercise-5-libxml2/2026-05-03-fuzzing101-exercise-5-libxml2-2.png)
 
 slave1
 
@@ -194,7 +192,7 @@ afl-fuzz -m none -i ./in -o out -s 124 -x ./xml.dict -S slave1 -- \
 ./install-asan/bin/xmllint --memory --noenc --nocdata --dtdattr --loaddtd --valid --xinclude @@
 ```
 
-![[Fuzzing101 #5] libxml2 병렬 퍼징: Stack Buffer Overflow 분석](/assets/img/posts/fuzzing101-exercise-5-libxml2/2026-05-03-fuzzing101-exercise-5-libxml2-3.png)
+![[Fuzzing101] Exercise 5 - LibXML2](/assets/img/posts/fuzzing101-exercise-5-libxml2/2026-05-03-fuzzing101-exercise-5-libxml2-3.png)
 
 slave2
 
@@ -203,7 +201,7 @@ afl-fuzz -m none -i ./in -o out -s 125 -x ./xml.dict -S slave2 -- \
 ./install-asan/bin/xmllint --memory --noenc --nocdata --dtdattr --loaddtd --valid --xinclude @@
 ```
 
-![[Fuzzing101 #5] libxml2 병렬 퍼징: Stack Buffer Overflow 분석](/assets/img/posts/fuzzing101-exercise-5-libxml2/2026-05-03-fuzzing101-exercise-5-libxml2-4.png)
+![[Fuzzing101] Exercise 5 - LibXML2](/assets/img/posts/fuzzing101-exercise-5-libxml2/2026-05-03-fuzzing101-exercise-5-libxml2-4.png)
 
 # Triage
 
@@ -570,6 +568,6 @@ if (englob && (size - len < 2)) {
 }
 ```
 
-![[Fuzzing101 #5] libxml2 병렬 퍼징: Stack Buffer Overflow 분석](/assets/img/posts/fuzzing101-exercise-5-libxml2/2026-05-03-fuzzing101-exercise-5-libxml2-5.png)
+![[Fuzzing101] Exercise 5 - LibXML2](/assets/img/posts/fuzzing101-exercise-5-libxml2/2026-05-03-fuzzing101-exercise-5-libxml2-5.png)
 
 패치 후 `ASAN stack-buffer-overflow` 가 뜨지 않는 것을 확인 가능하다.
