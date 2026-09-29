@@ -1,9 +1,12 @@
 ---
-title: "Callstack"
+title: "C로 구현하는 Call Stack: 프레임과 지역 변수 시각화"
 date: 2026-05-26
 notion_page_id: "357d0542-16a9-8048-8270-dfbc784d9127"
 notion_order: 4
-description: "callstack 구현"
+categories: [개발]
+tags: [C, Call Stack, System Programming]
+description: "배열로 메모리를 모델링해 매개변수, 지역 변수, Saved Frame Pointer가 쌓이고 해제되는 과정을 C로 구현합니다."
+portfolio_override: true
 ---
 ## Call stack 개략적으로 구현해보기.
 
@@ -454,6 +457,6 @@ RET에 들어있는 다음 명령어의 주소를 EIP에 넣고, RET 사이즈 �
 
 - 매개변수 정리
 
-![Callstack](/assets/img/posts/callstack/2026-05-26-callstack-1.png)
+![C로 구현하는 Call Stack: 프레임과 지역 변수 시각화](/assets/img/posts/callstack/2026-05-26-callstack-1.png)
 
 Calling convention에 따라서 매개변수는 함수를 호출하는 함수가 정리한다. main 함수에서 func1을 호출하고, func1 함수가 종료되면, main 함수는 매개변수의 개수 * 사이즈의 값만큼 SP를 조절한다.

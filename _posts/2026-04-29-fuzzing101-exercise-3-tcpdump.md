@@ -1,10 +1,12 @@
 ---
-title: "[Fuzzing101] Exercise 3 - TCPdump"
+title: "[Fuzzing101 #3] tcpdump 퍼징: OOB Read PoC와 패치 분석"
 date: 2026-04-29
 notion_page_id: "34fd0542-16a9-8007-9af6-efc52f6d2d6d"
 notion_order: 8
 categories: [블로그/기술문서]
-description: "Fuzzing101- Exercise 3"
+tags: [Fuzzing, AFL++, ASan, tcpdump, OOB Read]
+description: "tcpdump 4.9.2를 AFL++와 ASan으로 퍼징해 CVE-2017-13028 Out-of-bounds Read PoC를 재현하고 패치를 분석합니다."
+portfolio_override: true
 ---
 In this exercise we will fuzz **TCPdump** packet analyzer. The goal is to find a crash/PoC for [**CVE-2017-13028**](https://www.cvedetails.com/cve/CVE-2017-13028/) in TCPdump 4.9.2.
 
@@ -68,7 +70,7 @@ make
 make install
 ```
 
-![[Fuzzing101] Exercise 3 - TCPdump](/assets/img/posts/fuzzing101-exercise-3-tcpdump/2026-04-29-fuzzing101-exercise-3-tcpdump-1.png)
+![[Fuzzing101 #3] tcpdump 퍼징: OOB Read PoC와 패치 분석](/assets/img/posts/fuzzing101-exercise-3-tcpdump/2026-04-29-fuzzing101-exercise-3-tcpdump-1.png)
 
 잘 빌드가 되었다.
 
@@ -98,7 +100,7 @@ unset ASAN_OPTIONS
 afl-fuzz -m none -i in -o out -s 123 -- ./tcpdump-tcpdump-4.9.1/tcpdump -nn -r @@
 ```
 
-![[Fuzzing101] Exercise 3 - TCPdump](/assets/img/posts/fuzzing101-exercise-3-tcpdump/2026-04-29-fuzzing101-exercise-3-tcpdump-2.png)
+![[Fuzzing101 #3] tcpdump 퍼징: OOB Read PoC와 패치 분석](/assets/img/posts/fuzzing101-exercise-3-tcpdump/2026-04-29-fuzzing101-exercise-3-tcpdump-2.png)
 
 4시간 가량 돌려서 2개의 크래시를 찾았지만 둘 다 해당 CVE와는 관련 없었다.
 
@@ -116,7 +118,7 @@ afl-fuzz -m none -i in -o out -s 123 -- ./tcpdump-tcpdump-4.9.1/tcpdump -nn -r @
 afl-fuzz -m none -i in -o out -s 123 -- ./tcpdump-tcpdump-4.9.1/tcpdump -vvvvXX -ee -nn -r @@
 ```
 
-![[Fuzzing101] Exercise 3 - TCPdump](/assets/img/posts/fuzzing101-exercise-3-tcpdump/2026-04-29-fuzzing101-exercise-3-tcpdump-3.png)
+![[Fuzzing101 #3] tcpdump 퍼징: OOB Read PoC와 패치 분석](/assets/img/posts/fuzzing101-exercise-3-tcpdump/2026-04-29-fuzzing101-exercise-3-tcpdump-3.png)
 
 추가 퍼징을 진행했으나 동일 크래시를 안정적으로 재현하지 못해, 최종적으로는 공식 테스트/재현용 패킷 파일에서 파생한 near-crash seed를 초기 입력으로 사용하여 bootp_print()의 heap-buffer-overflow를 재현했다
 

@@ -1,13 +1,22 @@
 ---
-title: "Reversing1"
+title: "IDA·GDB로 따라가는 바이너리 리버싱 실습"
 date: 2026-05-26
 notion_page_id: "236d0542-16a9-8013-a73b-e87b0b93c197"
 notion_order: 15
-description: "reversing2"
+categories: [블로그/기술문서]
+tags: [Reverse Engineering, IDA, GDB, Binary Analysis]
+description: "IDA 디컴파일 결과와 GDB 동적 분석을 함께 사용해 플래그 검증 로직과 패킹된 바이너리를 분석한 리버싱 실습 기록입니다."
+portfolio_override: true
+featured: true
+featured_order: 2
+featured_label: "REVERSE ENGINEERING"
+featured_summary: "IDA의 정적 분석과 GDB의 동적 분석을 교차 검증하며 입력 검증 로직과 패킹된 바이너리를 추적했습니다."
+featured_tools: "IDA · GDB · C"
+featured_number: "02"
 ---
 # 1. Debugging 실습 - 1
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-1.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-1.png)
 
 Correct! 값을 출력하는 FLAG를 찾아서 입력하는 문제
 
@@ -52,15 +61,15 @@ gdb를 이용해서 문제를 풀어보자.
 memcmp 함수에 중단점을 걸고, s1에 어떤 값이 들어가는지를 확인하면 될 것이다.
 1. 
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-2.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-2.png)
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-3.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-3.png)
 
 memcmp의 주소는 129B인데, 이걸 그대로 쓰면 안되고 base주소에 더해서 실제 매핑된 주소를 구해야 한다.
 
 base주소는 gdb의 vmmap 명령어로 확인할 수 있고, 값은 `0x0000555555554000`
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-4.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-4.png)
 
 x64 운영체제에서 함수의 인자값이 레지스터에 들어가는 순서는 rdi, rsi, rdx, rcx … 순이다.
 
@@ -72,19 +81,19 @@ input : rsi
 
 0x20 : rdx
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-5.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-5.png)
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-6.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-6.png)
 
 `0x7fffffffdda0: "CyKor{e766dd0f763d31c079ed2aa9767bf0cbc91f37a29d960abb212392223}`
 
 그러므로 flag는 `CyKor{e766dd0f763d31c079ed2aa9767bf0cbc91f37a29d960abb212392223}`
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-7.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-7.png)
 
 # 2. Debugging 실습 - 2
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-8.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-8.png)
 
 ```c
 __int64 __fastcall main(int argc, char **argv, char **envp)
@@ -135,13 +144,13 @@ void sub_11A9()
 
 sub_130D 역시 정적분석으로는 코드를 확인하기 어렵게 되어있어있다.
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-9.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-9.png)
 
 sub_11A9함수를 실행시킨 후에 byte_5080을 gdb로 확인해보자
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-10.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-10.png)
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-11.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-11.png)
 
 byte_5080는 다음과 같이 구할 수 있다.
 
@@ -186,7 +195,7 @@ byte_5020[i] = update[i]
 
 역연산을 통해 update을 먼저 구해 보자
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-12.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-12.png)
 
 update은 byte_5020와 같기 때문에 그대로 값을 가져다 쓰면된다.
 
@@ -260,7 +269,7 @@ for i in range(0, 48, 1):
 print(''.join(chr(c) for c in flag))
 ```
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-13.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-13.png)
 
 ### 개선 코드
 
@@ -270,7 +279,7 @@ python에는 `list.index()`  메서드를 이용해 인덱스를 빠르게 찾�
 
 # 3. packed
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-14.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-14.png)
 
 ```c
 __int64 __fastcall main(int argc, char **argv, char **envp)
@@ -288,13 +297,13 @@ __int64 __fastcall main(int argc, char **argv, char **envp)
   return 0;
 ```
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-15.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-15.png)
 
 강의에서 말씀하신것처럼, ida로는 분석하기 힘들게 packing이 되어있다고 한다. 이를 gdb로 분석해보자.
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-16.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-16.png)
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-17.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-17.png)
 
 main문에 중단점을 걸고 프로그램을 실행한다.
 
@@ -483,15 +492,15 @@ gef➤  x/120i 0x555555555401
 
 `b * 0x5555555554b4`
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-18.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-18.png)
 
 rdi(input)을 `rbp-0x28`에 저장
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-19.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-19.png)
 
 rbp-0x18를 반복문의 index로 사용하여 반복문 진행 총 6회
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-20.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-20.png)
 
 `0x555555555442                  mov    eax, DWORD PTR [rax]`
 
@@ -499,29 +508,29 @@ rbp-0x18를 반복문의 index로 사용하여 반복문 진행 총 6회
 
 입력은 `abcdefgh` 로 줬는데 “abcd”만 rax 레지스터에 저장되었다. 데이터를 4바이트씩 쪼개서 처리하는 것 같다.
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-21.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-21.png)
 
 다음 값은 “efgh”가 들어간다.
 
 ` b *  0x55555555546d`
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-22.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-22.png)
 
 함수 내에서도 값 조작으로 보이는 것을 0x18번 진행한다.
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-23.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-23.png)
 
 반복문이 끝난 이후
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-24.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-24.png)
 
 rbp-0x14
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-25.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-25.png)
 
 진행을 계속하다 보니 함수가 끝나고 Wrong을 출력한다.  값 검증 → 틀린 경우 0을 리턴하는 것으로 생각된다.
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-26.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-26.png)
 
 rip + 0xb53 = 0x555555556040
 
@@ -543,7 +552,7 @@ rip + 0xb53 = 0x555555556040
 
 0x0000555555556040 - 0x0000555555554000 = 0x2040
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-27.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-27.png)
 
 0x2040에는 다음과 같이 값이 설정되어 있다.
 
@@ -583,15 +592,15 @@ input : `aaaabbbbccccddddeeeeffffgggghhhhiiiijjjjkkkk`
 
 아래는 0x62626262를 `rbp-0xc` 에 저장.  이 값들을 rdi(함수 인자)로 다시 저장하고  `0x555555555341` 를 호출한다.
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-28.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-28.png)
 
 rdi 레지스터에 “aaaabbbb”가 저장되어있는것을 확인 할 수 있다.
 
 `b *  0x555555555341`
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-29.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-29.png)
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-30.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-30.png)
 
 `rbp-0x18` = 0x61616161
 
@@ -605,11 +614,11 @@ rdi 레지스터에 “aaaabbbb”가 저장되어있는것을 확인 할 수 �
 
 `rbp-0xc` = 0 —> 반복문 index
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-31.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-31.png)
 
 이후  `0x55555555537c                  jmp    0x5555555553e0`
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-32.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-32.png)
 
 0x18 == 24번 반복
 
@@ -739,7 +748,7 @@ def enc(a1, a2):
  0x555555555381:      add    DWORD PTR [rbp-0x10],eax<br>
  0x555555555384:      mov    eax,DWORD PTR [rbp-0x14]`
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-33.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-33.png)
 
 `$rbp - 0x10` 은 `0x7f4a7c15` 라는 고정값을 사용하는 것이 아니라, 매 반복마다 값을 더해서 합산한 값을 사용한다.
 
@@ -781,7 +790,7 @@ gef➤  x/13i 0x5555555553e0
 
 enc로 변경한 값을 원래 input이 있었던 주소에 입력. 즉 input값 업데이트
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-34.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-34.png)
 
 다음 8바이트에 대해서 반복 진행 “ccccdddd”
 
@@ -825,8 +834,8 @@ for i in range(6):
 
 ```
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-35.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-35.png)
 
 `CyKor{b8b5f7ba51c1ada6c19978081c9e32aaa468fcf4a}`
 
-![Reversing1](/assets/img/posts/reversing/2026-05-26-reversing-36.png)
+![IDA·GDB로 따라가는 바이너리 리버싱 실습](/assets/img/posts/reversing/2026-05-26-reversing-36.png)
