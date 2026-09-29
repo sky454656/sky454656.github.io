@@ -1,4 +1,230 @@
 ---
 layout: home
-# Index page
+title: About
+description: 시스템 보안과 소프트웨어 취약점 분석을 공부하는 서기열의 포트폴리오
 ---
+
+<style>
+  .portfolio-home {
+    --portfolio-accent: var(--link-color);
+  }
+
+  .portfolio-hero {
+    padding: 2.75rem 0 2.25rem;
+    border-bottom: 1px solid var(--main-border-color);
+  }
+
+  .portfolio-eyebrow {
+    margin-bottom: 0.75rem;
+    color: var(--portfolio-accent);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .portfolio-hero h1 {
+    margin: 0 0 1rem;
+    font-size: clamp(2.4rem, 8vw, 4.5rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+
+  .portfolio-intro {
+    max-width: 720px;
+    margin: 0;
+    color: var(--text-color);
+    font-size: 1.15rem;
+    line-height: 1.85;
+  }
+
+  .portfolio-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.6rem;
+  }
+
+  .portfolio-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.65rem 1rem;
+    border: 1px solid var(--main-border-color);
+    border-radius: 10px;
+    color: var(--text-color);
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+  }
+
+  .portfolio-action:hover {
+    border-color: var(--portfolio-accent);
+    color: var(--portfolio-accent);
+    transform: translateY(-2px);
+  }
+
+  .portfolio-action.primary {
+    border-color: var(--portfolio-accent);
+    background: var(--portfolio-accent);
+    color: var(--main-bg);
+  }
+
+  .portfolio-section {
+    padding: 2.25rem 0 0;
+  }
+
+  .portfolio-section h2 {
+    margin-bottom: 1.25rem;
+    font-size: 1.4rem;
+  }
+
+  .portfolio-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+
+  .portfolio-card {
+    padding: 1.25rem;
+    border: 1px solid var(--main-border-color);
+    border-radius: 14px;
+    background: var(--card-bg);
+  }
+
+  .portfolio-card h3 {
+    margin: 0 0 0.55rem;
+    font-size: 1.05rem;
+  }
+
+  .portfolio-card p {
+    margin: 0;
+    color: var(--text-muted-color);
+    line-height: 1.65;
+  }
+
+  .portfolio-meta {
+    display: grid;
+    grid-template-columns: minmax(100px, 0.35fr) 1fr;
+    gap: 0.6rem 1.25rem;
+    margin: 0;
+  }
+
+  .portfolio-meta dt {
+    color: var(--text-muted-color);
+    font-weight: 600;
+  }
+
+  .portfolio-meta dd {
+    margin: 0;
+  }
+
+  .portfolio-writing {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .portfolio-writing a {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--main-border-color);
+    border-radius: 12px;
+    color: var(--text-color);
+    text-decoration: none;
+  }
+
+  .portfolio-writing a:hover {
+    border-color: var(--portfolio-accent);
+    color: var(--portfolio-accent);
+  }
+
+  .portfolio-writing time {
+    flex: none;
+    color: var(--text-muted-color);
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 576px) {
+    .portfolio-hero {
+      padding-top: 1.5rem;
+    }
+
+    .portfolio-meta {
+      grid-template-columns: 1fr;
+    }
+
+    .portfolio-meta dd + dt {
+      margin-top: 0.5rem;
+    }
+
+    .portfolio-writing a {
+      flex-direction: column;
+    }
+  }
+</style>
+
+<div class="portfolio-home">
+  <section class="portfolio-hero">
+    <p class="portfolio-eyebrow">System Security · Vulnerability Research</p>
+    <h1>서기열</h1>
+    <p class="portfolio-intro">
+      안녕하세요. 시스템 보안과 소프트웨어 취약점 분석을 공부하는 서기열입니다.<br>
+      퍼징, 리버싱, 시스템 해킹을 중심으로 프로젝트와 기술 기록을 정리하고 있습니다.
+    </p>
+    <div class="portfolio-actions">
+      <a class="portfolio-action primary" href="{{ '/blog/' | relative_url }}">
+        <i class="fas fa-book-open"></i> 기술 글 보기
+      </a>
+      <a class="portfolio-action" href="https://github.com/{{ site.github.username }}" target="_blank" rel="noopener noreferrer">
+        <i class="fab fa-github"></i> GitHub
+      </a>
+      <a class="portfolio-action" href="mailto:{{ site.social.email }}">
+        <i class="fas fa-envelope"></i> Email
+      </a>
+    </div>
+  </section>
+
+  <section class="portfolio-section">
+    <h2>Profile</h2>
+    <dl class="portfolio-meta">
+      <dt>이름</dt>
+      <dd>서기열</dd>
+      <dt>학력</dt>
+      <dd>고려대학교 스마트보안학부 · 2021.02 — 2027.02</dd>
+      <dt>관심 분야</dt>
+      <dd>시스템 보안, 소프트웨어 취약점 분석</dd>
+    </dl>
+  </section>
+
+  <section class="portfolio-section">
+    <h2>Focus</h2>
+    <div class="portfolio-grid">
+      <div class="portfolio-card">
+        <h3><i class="fas fa-bug"></i> Fuzzing</h3>
+        <p>다양한 소프트웨어를 대상으로 퍼징 환경을 구성하고 취약점 탐지 과정을 기록합니다.</p>
+      </div>
+      <div class="portfolio-card">
+        <h3><i class="fas fa-code"></i> Reversing</h3>
+        <p>프로그램의 동작 원리를 분석하며 바이너리와 시스템에 대한 이해를 넓히고 있습니다.</p>
+      </div>
+      <div class="portfolio-card">
+        <h3><i class="fas fa-terminal"></i> System Hacking</h3>
+        <p>시스템 구조와 메모리 취약점을 학습하고 CTF 및 실습 내용을 정리합니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="portfolio-section">
+    <h2>Recent Writing</h2>
+    <div class="portfolio-writing">
+      {% for post in site.posts limit: 4 %}
+        <a href="{{ post.url | relative_url }}">
+          <span>{{ post.title }}</span>
+          <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: '%Y.%m.%d' }}</time>
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+</div>
