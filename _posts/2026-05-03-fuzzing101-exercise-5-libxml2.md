@@ -568,6 +568,6 @@ if (englob && (size - len < 2)) {
 }
 ```
 
-<!-- image omitted: signed URL redacted -->
+![[Fuzzing101] Exercise 5 - LibXML2](/assets/img/posts/fuzzing101-exercise-5-libxml2/2026-05-03-fuzzing101-exercise-5-libxml2-5.png)
 
 패치 후 `ASAN stack-buffer-overflow` 가 뜨지 않는 것을 확인 가능하다.
